@@ -330,7 +330,7 @@ local function Create()
 
                         -- Это показ моей системы банд в табе. https://github.com/darkfated/FatedGang
                         -- Если не используете - можете нераскомментировать
-                        if pl:GetGangId() != '0' then
+                        --[[if pl:GetGangId() != '0' then
                             local gang_table = pl:GetGangTable()
 
                             draw.SimpleText(gang_table.name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
@@ -348,7 +348,7 @@ local function Create()
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.mat)
                             surface.DrawTexturedRect(w * 0.5 - 62, h * 0.5 - 12, 24, 24)
-                        end
+                        end]]
                     end
                     ply_btn.DoClick = function()
                         PlayerClick(pl)
