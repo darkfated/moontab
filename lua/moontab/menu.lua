@@ -275,7 +275,14 @@ local function Create()
             local label_cat = vgui.Create('DPanel', MoonTab.sp)
             label_cat:Dock(TOP)
             label_cat:SetTall(24)
+            
+            surface.SetFont('Fated.20')
+
+            local job_cat_size = surface.GetTextSize(job_cat)
+
             label_cat.Paint = function(_, w, h)
+                draw.RoundedBoxEx(6, w * 0.5 - job_cat_size * 0.5 - 8, 4, job_cat_size + 16, h - 4, Mantle.color.panel[2], true, true, false, false)
+                draw.SimpleText(job_cat, 'Fated.20', w * 0.5, 3, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
 
             for job_name, job_players in pairs(pl_table) do
