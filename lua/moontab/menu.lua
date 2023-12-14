@@ -116,11 +116,13 @@ local function Create()
 
     local function getRankTable(pl)
         local time = math.random(200, 1200) -- Здесь написать meta системы измерения часов у игрока. Пример: pl:GetTime()
-        local time_data
+        local time_data = {}
 
         for _, data_hour in ipairs(table_hours) do
             if time >= data_hour[1] then
-                time_data = data_hour
+                for k, v in ipairs(data_hour) do
+                    time_data[k] = v
+                end
             else
                 break
             end
@@ -274,7 +276,6 @@ local function Create()
             label_cat:Dock(TOP)
             label_cat:SetTall(24)
             label_cat.Paint = function(_, w, h)
-                draw.SimpleText(job_cat, 'Fated.20', w * 0.5, 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
 
             for job_name, job_players in pairs(pl_table) do
