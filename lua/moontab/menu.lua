@@ -308,6 +308,12 @@ local function Create()
                     local rank_icon = Material(rank_table[2])
 
                     ply_btn.Paint = function(self, w, h)
+                        if !IsValid(pl) then
+                            ply_btn:Remove()
+
+                            return
+                        end
+
                         local job_color = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
 
                         draw.RoundedBox(4, 0, 0, w, h, color_pl_back)
@@ -418,7 +424,6 @@ local function Create()
         RunConsoleCommand('mantle_moontab_style_list', convar_mantle_moontab_style_list:GetBool() and '0' or '1')
 
         timer.Simple(0.1, function()
-            SelectStyle('')
         end)
     end
 end
