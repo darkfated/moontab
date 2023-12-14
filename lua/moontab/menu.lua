@@ -424,6 +424,9 @@ local function Create()
         RunConsoleCommand('mantle_moontab_style_list', convar_mantle_moontab_style_list:GetBool() and '0' or '1')
 
         timer.Simple(0.1, function()
+            if IsValid(MoonTab) then
+                SelectStyle('')
+            end
         end)
     end
 end
