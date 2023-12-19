@@ -32,7 +32,6 @@ end
 
 local menu_width, menu_tall = 1200, 600
 local scrw, scrh = ScrW(), ScrH()
-local color_pl_back = Color(Mantle.color.panel[2].r, Mantle.color.panel[2].g, Mantle.color.panel[2].b, 150)
 local color_rank = Color(190, 190, 190, 220)
 
 local function Create()
@@ -183,9 +182,9 @@ local function Create()
 
                         local job_table = pl:getJobTable()
 
-                        draw.RoundedBox(8, 0, 0, w, h, color_pl_back)
+                        draw.RoundedBox(8, 0, 0, w, h, Mantle.color.panel_alpha[2])
                         draw.RoundedBoxEx(8, 0, 0, w, h * 0.4 - 16, job_table.color, true, true, false, false)
-                        draw.RoundedBox(8, w * 0.25 - 8, h * 0.25 - 8, w * 0.5 + 16, h * 0.5 + 16, color_pl_back)
+                        draw.RoundedBox(8, w * 0.25 - 8, h * 0.25 - 8, w * 0.5 + 16, h * 0.5 + 16, Mantle.color.panel_alpha[2])
                         draw.RoundedBoxEx(8, 0, h * 0.4 - 16, h * 0.25 - 8, 16, job_table.color, false, false, false, true)
                         draw.RoundedBoxEx(8, h * 0.75 + 8, h * 0.4 - 16, h * 0.25 - 8, 16, job_table.color, false, false, true, false)
 
@@ -316,7 +315,7 @@ local function Create()
 
                         local job_color = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
 
-                        draw.RoundedBox(4, 0, 0, w, h, color_pl_back)
+                        draw.RoundedBox(4, 0, 0, w, h, Mantle.color.panel_alpha[2])
                         draw.RoundedBoxEx(32, 0, 0, 200, 32, job_color, false, false, false, true)
 
                         draw.SimpleText(pl:Name(), 'Fated.20', 40, 16, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
