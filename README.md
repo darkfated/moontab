@@ -7,6 +7,7 @@ TAB menu made for DarkRP on Mantle library. The menu has many functions and a ch
 
 ### The "grid" style
 <img src="https://github.com/darkfated/moontab/assets/49955245/2cde8ca6-a9c9-439a-aa15-c008ac5471bf" width="650" alt="List style">
+<img src="https://github.com/darkfated/moontab/assets/49955245/45fb7420-d16c-4e78-bf52-d8d1085118c6" width="650" alt="List style 2">
 
 ### The "list" style
 <img src="https://github.com/darkfated/moontab/assets/49955245/5399966a-95ae-4712-b4e6-28582c91b64c" width="650" alt="List style">
