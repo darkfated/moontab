@@ -18,6 +18,10 @@ local table_hours = {
     {1000, 'icon16/rosette.png', 'Финальный босс побеждён'}
 }
 
+local function time_to_hours(time)
+	return math.floor(time / 3600)
+end
+
 local function Close()
     if IsValid(MoonTab) then
         MoonTabScrollPos = MoonTab.sp:GetVBar():GetScroll()
@@ -32,7 +36,6 @@ end
 
 local menu_width, menu_tall = 1200, 600
 local scrw, scrh = ScrW(), ScrH()
-local color_rank = Color(190, 190, 190, 220)
 
 local function Create()
     MoonTab = vgui.Create('DFrame')
@@ -73,39 +76,46 @@ local function Create()
         SetClipboardText(game.GetIPAddress())
     end
 
-    local function StringInString(subString, fullString)
+    local function string_in_string(subString, fullString)
         local lowerSubString = string.lower(subString)
         local lowerFullString = string.lower(fullString)
 
         return string.find(lowerFullString, lowerSubString, 1, true) != nil
     end
 
-    local function plyBadVisibleCheck(pl)
-        if StringInString(MoonTab.player_filter, pl:Name()) then
+    local function check_search_visible(pl)
+        if string_in_string(MoonTab.player_filter, pl:Name()) then
             return false
         end
 
-        if StringInString(MoonTab.player_filter, pl:getDarkRPVar('job', '')) then
+        if string_in_string(MoonTab.player_filter, pl:getDarkRPVar('job', '')) then
             return false
         end
     
         return true
     end
 
-	local sort_table_job = {}
+	local sorted_categories = {}
 
-	for _, cat_job_table in pairs(DarkRP.getCategories().jobs) do
-		sort_table_job[cat_job_table.name] = {}
-	end
+	for k, category in SortedPairsByMemberValue(DarkRP.getCategories().jobs, 'sortOrder') do
+		sorted_categories[k] = {
+            name = category.name,
+            jobs = {}
+        }
 
-	for v, pl in pairs(player.GetAll()) do
-		local job_table = pl:getJobTable()
+        for j, job in pairs(category.members) do
+            sorted_categories[k].jobs[j] = {
+                name = job.name,
+                color = job.color,
+                members = {}
+            }
 
-		if !sort_table_job[job_table.category][job_table.name] then
-			sort_table_job[job_table.category][job_table.name] = {}
-		end
-
-		table.insert(sort_table_job[job_table.category][job_table.name], pl)
+            for _, pl in ipairs(player.GetAll()) do
+                if pl:getDarkRPVar('job', '') == job.name then
+                    table.insert(sorted_categories[k].jobs[j].members, pl)
+                end
+            end
+        end
 	end
 
     MoonTab.sp = vgui.Create('DScrollPanel', MoonTab)
@@ -113,8 +123,8 @@ local function Create()
     MoonTab.sp:Dock(FILL)
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
-    local function getRankTable(pl)
-        local time = math.random(200, 1200) -- Здесь написать meta системы измерения часов у игрока. Пример: pl:GetTime()
+    local function get_rank_table(pl)
+        local time = time_to_hours(pl:GetUTime()) -- Здесь написать meta инфу о измерении часов у игрока. Пример: time_to_hours(pl:GetUTime())
         local time_data = {}
 
         for _, data_hour in ipairs(table_hours) do
@@ -155,14 +165,10 @@ local function Create()
         grid_players:SetColWide(panel_size)
         grid_players:SetRowHeight(panel_size)
 
-        for job_cat, pl_table in pairs(sort_table_job) do
-            for job_name, job_players in pairs(pl_table) do
-                for pl_k, pl in pairs(job_players) do
-                    if !IsValid(pl) then
-                        continue
-                    end
-
-                    if plyBadVisibleCheck(pl) then
+        for _, category_table in pairs(sorted_categories) do
+            for _, job_table in pairs(category_table.jobs) do
+                for _, pl in pairs(job_table.members) do
+                    if check_search_visible(pl) then
                         continue
                     end
 
@@ -170,8 +176,7 @@ local function Create()
                     ply_btn:SetSize(panel_size - 8, panel_size - 8)
                     ply_btn:SetText('')
 
-                    local ply_time_data = getRankTable(pl)
-                    local ply_time_icon = Material(ply_time_data[2])
+                    local ply_time_data = get_rank_table(pl)
 
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
@@ -179,8 +184,6 @@ local function Create()
                             
                             return
                         end
-
-                        local job_table = pl:getJobTable()
 
                         draw.RoundedBox(8, 0, 0, w, h, Mantle.color.panel_alpha[2])
                         draw.RoundedBoxEx(8, 0, 0, w, h * 0.4 - 16, job_table.color, true, true, false, false)
@@ -191,15 +194,16 @@ local function Create()
                         local name = pl:Name()
                         local len_name = string.len(name)
 
-                        draw.SimpleText(name, len_name > 18 and 'Fated.17' or len_name > 20 and 'Fated.15' or 'Fated.18', w * 0.5, h * 0.1 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                        draw.SimpleText(pl:getDarkRPVar('job', 'Загрузка...'), 'Fated.15', w * 0.5, h * 0.815 - 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(name, len_name > 18 and 'Fated.17' or (len_name > 20 and 'Fated.15' or 'Fated.18'), w * 0.5, h * 0.1 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(job_table.name, 'Fated.15', w * 0.5, h * 0.815 - 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.15', w * 0.05 + 16, h * 0.9 + 2, Color(200, 200, 200), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.15', w * 0.05 + 16, h * 0.9 + 2, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                     end
-
                     ply_btn.DoClick = function()
                         PlayerClick(pl)
                     end
+
+                    local ply_time_icon = Material(ply_time_data[2])
 
                     ply_btn.icon_time = vgui.Create('DButton', ply_btn)
                     ply_btn.icon_time:SetSize(16, 16)
@@ -207,7 +211,7 @@ local function Create()
                     ply_btn.icon_time:SetText('')
                     ply_btn.icon_time:SetTooltip(ply_time_data[3])
                     ply_btn.icon_time.Paint = function(self, w, h)
-                        surface.SetDrawColor(color_rank)
+                        surface.SetDrawColor(Mantle.color.gray)
                         surface.SetMaterial(ply_time_icon)
                         surface.DrawTexturedRect(0, 0, w, h)
                     end
@@ -242,7 +246,7 @@ local function Create()
                     
                     ply_btn.rank:SetTooltip(rank_table[1])
                     ply_btn.rank.Paint = function(self, w, h)
-                        surface.SetDrawColor(color_rank)
+                        surface.SetDrawColor(Mantle.color.gray)
                         surface.SetMaterial(rank_icon)
                         surface.DrawTexturedRect(0, 0, w, h)
                     end
@@ -256,11 +260,11 @@ local function Create()
     local function CreateListStyle()
         MoonTab.sp:Clear()
 
-        for job_cat, pl_table in pairs(sort_table_job) do
+        for _, category_table in pairs(sorted_categories) do
             local hasPlayers = false
 
-            for job_name, job_players in pairs(pl_table) do
-                if next(job_players) != nil then
+            for _, job_table in pairs(category_table.jobs) do
+                if #job_table.members > 0 then
                     hasPlayers = true
 
                     break
@@ -277,20 +281,16 @@ local function Create()
             
             surface.SetFont('Fated.20')
 
-            local job_cat_size = surface.GetTextSize(job_cat)
+            local category_name_size = surface.GetTextSize(category_table.name)
 
             label_cat.Paint = function(_, w, h)
-                draw.RoundedBoxEx(6, w * 0.5 - job_cat_size * 0.5 - 8, 4, job_cat_size + 16, h - 4, Mantle.color.panel[2], true, true, false, false)
-                draw.SimpleText(job_cat, 'Fated.20', w * 0.5, 3, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
+                draw.RoundedBoxEx(6, w * 0.5 - category_name_size * 0.5 - 8, 4, category_name_size + 16, h - 4, Mantle.color.panel[2], true, true, false, false)
+                draw.SimpleText(category_table.name, 'Fated.20', w * 0.5, 3, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP)
             end
 
-            for job_name, job_players in pairs(pl_table) do
-                for pl_k, pl in pairs(job_players) do
-                    if !IsValid(pl) then
-                        continue
-                    end
-
-                    if plyBadVisibleCheck(pl) then
+            for _, job_table in pairs(category_table.jobs) do
+                for _, pl in pairs(job_table.members) do
+                    if check_search_visible(pl) then
                         continue
                     end
 
@@ -300,8 +300,7 @@ local function Create()
                     ply_btn:SetTall(50)
                     ply_btn:SetText('')
 
-                    local job_table = pl:getJobTable()
-                    local ply_time_data = getRankTable(pl)
+                    local ply_time_data = get_rank_table(pl)
                     local ply_time_icon = Material(ply_time_data[2])
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
@@ -319,23 +318,23 @@ local function Create()
                         draw.RoundedBoxEx(32, 0, 0, 200, 32, job_color, false, false, false, true)
 
                         draw.SimpleText(pl:Name(), 'Fated.20', 40, 16, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-                        draw.SimpleText(pl:getDarkRPVar('job', 'Загрузка...'), 'Fated.14', 8, h - 3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+                        draw.SimpleText(job_table.name, 'Fated.14', 8, h - 3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
                         draw.SimpleText(pl:Ping(), 'Fated.20', w - 16, h * 0.5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
-                        surface.SetDrawColor(color_rank)
+                        surface.SetDrawColor(Mantle.color.gray)
                         surface.SetMaterial(ply_time_icon)
                         surface.DrawTexturedRect(w * 0.7, 8, 16, 16)
-                        draw.SimpleText(ply_time_data[3], 'Fated.14', w * 0.7, h - 6, color_rank, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.14', w * 0.7 + 24, 16, color_rank, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(ply_time_data[3], 'Fated.14', w * 0.7, h - 6, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.14', w * 0.7 + 24, 16, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-                        surface.SetDrawColor(color_rank)
+                        surface.SetDrawColor(Mantle.color.gray)
                         surface.SetMaterial(rank_icon)
                         surface.DrawTexturedRect(w * 0.25, h * 0.5 - 8, 16, 16)
-                        draw.SimpleText(rank_table[1], 'Fated.14', w * 0.25 + 24, h * 0.5, color_rank, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(rank_table[1], 'Fated.14', w * 0.25 + 24, h * 0.5, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                         -- Это показ моей системы банд в табе. https://github.com/darkfated/FatedGang
                         -- Если не используете - можете нераскомментировать
-                        --[[if pl:GetGangId() != '0' then
+                        if pl:GetGangId() != '0' then
                             local gang_table = pl:GetGangTable()
 
                             draw.SimpleText(gang_table.name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
@@ -353,7 +352,7 @@ local function Create()
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.mat)
                             surface.DrawTexturedRect(w * 0.5 - 62, h * 0.5 - 12, 24, 24)
-                        end]]
+                        end
                     end
                     ply_btn.DoClick = function()
                         PlayerClick(pl)

@@ -5,10 +5,7 @@
 ]]
 
 local function run_scripts()
-	local cl = SERVER and AddCSLuaFile or include
-	local sv = SERVER and include or function() end
-	
-	cl('menu.lua')
+	Mantle.run_cl('menu.lua')
 end
 
 local function init()
