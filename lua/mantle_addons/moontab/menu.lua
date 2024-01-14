@@ -84,11 +84,13 @@ local function Create()
     end
 
     local function check_search_visible(pl)
-        if string_in_string(MoonTab.player_filter, pl:Name()) then
+        local filter = string.lower(MoonTab.player_filter)
+
+        if string_in_string(filter, string.lower(pl:Name())) then
             return false
         end
 
-        if string_in_string(MoonTab.player_filter, pl:getDarkRPVar('job', '')) then
+        if string_in_string(filter, string.lower(pl:getDarkRPVar('job', ''))) then
             return false
         end
     
