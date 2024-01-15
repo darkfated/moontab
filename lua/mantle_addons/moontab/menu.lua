@@ -309,7 +309,7 @@ local function Create()
 
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
-                            ply_btn:Remove()
+                            self:Remove()
 
                             return
                         end
@@ -343,7 +343,9 @@ local function Create()
 
                             if self:IsVisible() and !self.mat then
                                 http.DownloadMaterial('https://i.imgur.com/' .. gang_table.img .. '.png', gang_table.img .. '.png', function(gang_icon)
-                                    self.mat = gang_icon
+                                    if IsValid(self) then
+                                        self.mat = gang_icon
+                                    end
                                 end)
                             end
             
