@@ -26,7 +26,7 @@ local function Close()
     if IsValid(MoonTab) then
         MoonTabScrollPos = MoonTab.sp:GetVBar():GetScroll()
 
-        MoonTab:Remove()       
+        MoonTab:Remove()
     end
 
     if IsValid(Mantle.ui.menu_derma_menu) then
@@ -236,6 +236,7 @@ local function Create()
                     end
                     ply_btn.avatar.btn.DoClick = function()
                         PlayerClick()
+                        PlayerClick(pl)
                     end
 
                     ply_btn.rank = vgui.Create('DButton', ply_btn)
