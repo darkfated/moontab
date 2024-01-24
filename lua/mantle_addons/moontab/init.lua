@@ -2,7 +2,7 @@
     * MoonTab *
     GitHub: https://github.com/darkfated/moontab
     Author's discord: darkfated
-]]
+]]--
 
 local function run_scripts()
 	Mantle.run_cl('menu.lua')
