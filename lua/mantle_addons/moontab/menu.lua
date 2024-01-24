@@ -235,7 +235,6 @@ local function Create()
                         end
                     end
                     ply_btn.avatar.btn.DoClick = function()
-                        PlayerClick()
                         PlayerClick(pl)
                     end
 
