@@ -42,6 +42,7 @@ local function Create()
     Mantle.ui.frame(MoonTab, 'Количество игроков: ' .. #player.GetAll() .. ' из ' .. game.MaxPlayers(), math.Clamp(menu_width, 0, scrw), math.Clamp(menu_tall, 0, scrh), false)
     MoonTab:Center()
     MoonTab:MakePopup()
+    MoonTab:SetKeyBoardInputEnabled(false)
     MoonTab.OnKeyCodePressed = function(self, key)
         if key == KEY_TAB and MoonTab.dont_remove then
             Close()
@@ -307,6 +308,22 @@ local function Create()
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
 
+                    -- Это показ моей системы банд в табе. https://github.com/darkfated/FatedGang
+                    -- Если не используете - можете не раскомментрировать
+                    -- local gang_id = pl:GangId()
+
+                    -- if gang_id then
+                    --     local gang_table = FatedGang.gangs[gang_id]
+                    --     local info_table = util.JSONToTable(gang_table.info)
+
+                    --     http.DownloadMaterial('https://i.imgur.com/' .. info_table.img, info_table.img, function(icon)
+                    --         if IsValid(ply_btn) then
+                    --             ply_btn.mat = icon
+                    --             ply_btn.gang_name = info_table.name
+                    --         end
+                    --     end)
+                    -- end
+
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
                             self:Remove()
@@ -334,24 +351,8 @@ local function Create()
                         surface.DrawTexturedRect(w * 0.25, h * 0.5 - 8, 16, 16)
                         draw.SimpleText(rank_table[1], 'Fated.14', w * 0.25 + 24, h * 0.5, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-                        -- Это показ моей системы банд в табе. https://github.com/darkfated/FatedGang
-                        -- Если не используете - можете нераскомментировать
-                        if pl:GetGangId() != '0' then
-                            local gang_table = pl:GetGangTable()
-
-                            draw.SimpleText(gang_table.name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-
-                            if self:IsVisible() and !self.mat then
-                                http.DownloadMaterial('https://i.imgur.com/' .. gang_table.img .. '.png', gang_table.img .. '.png', function(gang_icon)
-                                    if IsValid(self) then
-                                        self.mat = gang_icon
-                                    end
-                                end)
-                            end
-            
-                            if !self.mat then
-                                return
-                            end
+                        if self.mat then
+                            draw.SimpleText(self.gang_name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.mat)
@@ -395,15 +396,21 @@ local function Create()
     MoonTab.search:SetDrawLanguageID(false)
     MoonTab.search:SetTabbingDisabled(true)
     MoonTab.search:SetPaintBackground(false)
-    MoonTab.search.OnGetFocus = function()
+    MoonTab.search.OnGetFocus = function(self)
         MoonTab.dont_remove = true
-        
-        MoonTab.search:RequestFocus()
+
+        self:RequestFocus()
+
+        MoonTab:SetKeyBoardInputEnabled(true)
     end
     MoonTab.search.OnLoseFocus = function(self)
+        MoonTab.dont_remove = false
+
         MoonTab.player_filter = self:GetText()
 
         SelectStyle()
+
+        MoonTab:SetKeyBoardInputEnabled(false)
     end
 
     MoonTab.sp:GetVBar():AnimateTo(MoonTabScrollPos, 0, 0)
