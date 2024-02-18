@@ -150,9 +150,20 @@ local function Create()
         DM:AddOption('Скопировать SteamID', function()
             SetClipboardText(target:SteamID())
         end, 'icon16/disk.png')
-        DM:AddOption('Открыть профиль', function()
+        DM:AddOption('Открыть Steam', function()
             gui.OpenURL('https://steamcommunity.com/profiles/' .. target:SteamID64())
         end, 'icon16/layout_content.png')
+        // Работает в том случаи, если установлена система профиля моя
+        // https://github.com/darkfated/mooncontextmenu
+        DM:AddOption('Игровой профиль', function()
+            RunConsoleCommand('gameprofile_get_player', target:SteamID())
+            
+            timer.Simple(0.2, function()
+                Close()
+                
+                GameProfile.open_profile(true)
+            end)
+        end, 'icon16/contrast.png')
     end
     
     local function CreateGridStyle()
