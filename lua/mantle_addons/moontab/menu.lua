@@ -182,6 +182,10 @@ local function Create()
         for _, category_table in pairs(sorted_categories) do
             for _, job_table in pairs(category_table.jobs) do
                 for _, pl in pairs(job_table.members) do
+                    if !IsValid(pl) then
+                        continue
+                    end
+
                     if check_search_visible(pl) then
                         continue
                     end
@@ -304,6 +308,10 @@ local function Create()
 
             for _, job_table in pairs(category_table.jobs) do
                 for _, pl in pairs(job_table.members) do
+                    if !IsValid(pl) then
+                        continue
+                    end
+                    
                     if check_search_visible(pl) then
                         continue
                     end
