@@ -327,21 +327,26 @@ local function Create()
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
 
-                    -- Это показ моей системы банд в табе. https://github.com/darkfated/FatedGang
-                    -- Если не используете - можете не раскомментрировать
-                    -- local gang_id = pl:GangId()
+                    if FatedGang then
+                        local gang_id = pl:GangId()
 
-                    -- if gang_id then
-                    --     local gang_table = FatedGang.gangs[gang_id]
-                    --     local info_table = util.JSONToTable(gang_table.info)
+                        if gang_id then
+                            local gang_table = FatedGang.gangs[gang_id]
+                            local info_table = util.JSONToTable(gang_table.info)
+                            local players_table = util.JSONToTable(gang_table.players)
+                            local pl_data = players_table[pl:SteamID()]
+                            local rank_table = info_table.ranks[pl_data.rank] and info_table.ranks[pl_data.rank] or info_table.ranks[1]
 
-                    --     http.DownloadMaterial('https://i.imgur.com/' .. info_table.img, info_table.img, function(icon)
-                    --         if IsValid(ply_btn) then
-                    --             ply_btn.mat = icon
-                    --             ply_btn.gang_name = info_table.name
-                    --         end
-                    --     end)
-                    -- end
+                            http.DownloadMaterial('https://i.imgur.com/' .. info_table.img, info_table.img, function(icon)
+                                if IsValid(ply_btn) then
+                                    ply_btn.mat = icon
+                                    ply_btn.gang_name = info_table.name
+                                    ply_btn.gang_rank = rank_table.name
+                                    ply_btn.gang_rank_col = rank_table.col
+                                end
+                            end)
+                        end
+                    end
 
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
@@ -371,11 +376,12 @@ local function Create()
                         draw.SimpleText(rank_table[1], 'Fated.14', w * 0.25 + 24, h * 0.5, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                         if self.mat then
-                            draw.SimpleText(self.gang_name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 2, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                            draw.SimpleText(self.gang_name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 10, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                            draw.SimpleText(self.gang_rank, 'Fated.16', w * 0.5 - 32, h * 0.5 + 6, self.gang_rank_col, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.mat)
-                            surface.DrawTexturedRect(w * 0.5 - 62, h * 0.5 - 12, 24, 24)
+                            surface.DrawTexturedRect(w * 0.5 - 64, h * 0.5 - 15, 28, 28)
                         end
                     end
                     ply_btn.DoClick = function()
