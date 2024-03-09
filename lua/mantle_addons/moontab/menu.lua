@@ -126,7 +126,7 @@ local function Create()
     MoonTab.sp:Dock(FILL)
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
-    local function get_rank_table(pl)
+    local function get_time_table(pl)
         local time = time_to_hours(pl:GetUTime()) -- Здесь написать meta инфу о измерении часов у игрока. Пример: time_to_hours(pl:GetUTime())
         local time_data = {}
 
@@ -194,7 +194,7 @@ local function Create()
                     ply_btn:SetSize(panel_size - 8, panel_size - 8)
                     ply_btn:SetText('')
 
-                    local ply_time_data = get_rank_table(pl)
+                    local ply_time_data = get_time_table(pl)
 
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
@@ -322,7 +322,7 @@ local function Create()
                     ply_btn:SetTall(50)
                     ply_btn:SetText('')
 
-                    local ply_time_data = get_rank_table(pl)
+                    local ply_time_data = get_time_table(pl)
                     local ply_time_icon = Material(ply_time_data[2])
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
