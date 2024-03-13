@@ -42,8 +42,10 @@ local menu_width, menu_tall = 1200, 676
 local scrw, scrh = ScrW(), ScrH()
 
 local function Create()
+    local _, server_players_table = player.Iterator()
+
     MoonTab = vgui.Create('DFrame')
-    Mantle.ui.frame(MoonTab, 'Количество игроков: ' .. #player.GetAll() .. ' из ' .. game.MaxPlayers(), math.Clamp(menu_width, 0, scrw), math.Clamp(menu_tall, 0, scrh), false)
+    Mantle.ui.frame(MoonTab, 'Количество игроков: ' .. #server_players_table .. ' из ' .. game.MaxPlayers(), math.Clamp(menu_width, 0, scrw), math.Clamp(menu_tall, 0, scrh), false)
     MoonTab:Center()
     MoonTab:MakePopup()
     MoonTab:SetKeyBoardInputEnabled(false)
@@ -117,7 +119,7 @@ local function Create()
                 members = {}
             }
 
-            for _, pl in ipairs(player.GetAll()) do
+            for _, pl in ipairs(server_players_table) do
                 if pl:getDarkRPVar('job', '') == job.name then
                     table.insert(sorted_categories[k].jobs[j].members, pl)
                 end
@@ -131,14 +133,12 @@ local function Create()
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
     local function get_time_table(pl)
-        local time = time_to_hours(10) -- Здесь написать meta-функцию измерения часов у игрока. Пример: time_to_hours(pl:GetUTime())
+        local time = time_to_hours(pl:sam_get_play_time()) -- Здесь написать meta-функцию измерения часов у игрока. Пример: time_to_hours(pl:GetUTime())
         local time_data = {}
 
         for _, data_hour in ipairs(table_hours) do
             if time >= data_hour[1] then
-                for k, v in ipairs(data_hour) do
-                    time_data[k] = v
-                end
+                time_data = {data_hour[1], data_hour[2], data_hour[3]}
             else
                 break
             end
@@ -235,6 +235,8 @@ local function Create()
                     ply_btn:SetText('')
 
                     local ply_time_data = get_time_table(pl)
+                    local name = pl:Name()
+                    local len_name = string.len(name)
 
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
@@ -248,9 +250,6 @@ local function Create()
                         draw.RoundedBox(8, w * 0.25 - 8, h * 0.25 - 8, w * 0.5 + 16, h * 0.5 + 16, Mantle.color.panel_alpha[2])
                         draw.RoundedBoxEx(8, 0, h * 0.4 - 16, h * 0.25 - 8, 16, job_table.color, false, false, false, true)
                         draw.RoundedBoxEx(8, h * 0.75 + 8, h * 0.4 - 16, h * 0.25 - 8, 16, job_table.color, false, false, true, false)
-
-                        local name = pl:Name()
-                        local len_name = string.len(name)
 
                         draw.SimpleText(name, len_name > 18 and 'Fated.17' or (len_name > 20 and 'Fated.15' or 'Fated.18'), w * 0.5, h * 0.1 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                         draw.SimpleText(job_table.name, 'Fated.15', w * 0.5, h * 0.815 - 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
