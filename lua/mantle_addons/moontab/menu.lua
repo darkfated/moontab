@@ -428,7 +428,7 @@ local function Create()
 
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.gang_mat)
-                            surface.DrawTexturedRect(w * 0.5 - 73, h * 0.5 - 18, 36, 36)
+                            surface.DrawTexturedRect(w * 0.5 - 73, 14, 36, 36)
                         end
 
                         if self.mat_banner then
@@ -469,18 +469,20 @@ local function Create()
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 8, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 9, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
-                        for k, medal in pairs(self.medals) do
-                            local medal_table = GameProfile.medals[medal]
+                        if self.medals then
+                            for k, medal in pairs(self.medals) do
+                                local medal_table = GameProfile.medals[medal]
 
-                            if !medal_table then
-                                continue
+                                if !medal_table then
+                                    continue
+                                end
+
+                                local mat_medal = Material('gameprofile/medals/' .. medal_table.icon .. '.png', 'smooth')
+
+                                surface.SetDrawColor(color_white)
+                                surface.SetMaterial(mat_medal)
+                                surface.DrawTexturedRect(w * 0.65 + (k - 1) * 40, 14, 36, 36)
                             end
-
-                            local mat_medal = Material('gameprofile/medals/' .. medal_table.icon .. '.png', 'smooth')
-
-                            surface.SetDrawColor(color_white)
-                            surface.SetMaterial(mat_medal)
-                            surface.DrawTexturedRect(w * 0.65 + (k - 1) * 38, 16, 32, 32)
                         end
 
                         draw.SimpleText('ПКМ - Профиль', 'Fated.12', w - 14, h - 14, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
