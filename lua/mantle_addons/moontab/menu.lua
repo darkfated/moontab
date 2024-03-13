@@ -8,6 +8,7 @@ local convar_mantle_moontab_style_list = CreateClientConVar('mantle_moontab_styl
 
 local table_ranks = {
     ['superadmin'] = {'Создатель', 'icon16/tux.png'},
+    ['vip'] = {'VIP', 'icon16/user_green.png'},
     ['user'] = {'Игрок', 'icon16/user.png'},
 }
 
@@ -19,8 +20,11 @@ local table_hours = {
 }
 
 local function time_to_hours(time)
-	return math.floor(time / 3600)
+    return math.floor(time / 3600)
 end
+
+local color_shadow = Color(0, 0, 0, 100)
+local color_banner_shadow = Color(0, 0, 0, 150)
 
 local function Close()
     if IsValid(MoonTab) then
@@ -34,7 +38,7 @@ local function Close()
     end
 end
 
-local menu_width, menu_tall = 1200, 600
+local menu_width, menu_tall = 1200, 676
 local scrw, scrh = ScrW(), ScrH()
 
 local function Create()
@@ -98,10 +102,10 @@ local function Create()
         return true
     end
 
-	local sorted_categories = {}
+    local sorted_categories = {}
 
-	for k, category in SortedPairsByMemberValue(DarkRP.getCategories().jobs, 'sortOrder') do
-		sorted_categories[k] = {
+    for k, category in SortedPairsByMemberValue(DarkRP.getCategories().jobs, 'sortOrder') do
+        sorted_categories[k] = {
             name = category.name,
             jobs = {}
         }
@@ -119,7 +123,7 @@ local function Create()
                 end
             end
         end
-	end
+    end
 
     MoonTab.sp = vgui.Create('DScrollPanel', MoonTab)
     Mantle.ui.sp(MoonTab.sp)
@@ -127,7 +131,7 @@ local function Create()
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
     local function get_time_table(pl)
-        local time = time_to_hours(pl:GetUTime()) -- Здесь написать meta инфу о измерении часов у игрока. Пример: time_to_hours(pl:GetUTime())
+        local time = time_to_hours(10) -- Здесь написать meta-функцию измерения часов у игрока. Пример: time_to_hours(pl:GetUTime())
         local time_data = {}
 
         for _, data_hour in ipairs(table_hours) do
@@ -145,7 +149,7 @@ local function Create()
         return time_data
     end
 
-    local function PlayerClick(target)
+    local function PlayerLeftClick(target)
         local DM = Mantle.ui.derma_menu()
         DM:AddOption('Скопировать SteamID', function()
             SetClipboardText(target:SteamID())
@@ -153,17 +157,53 @@ local function Create()
         DM:AddOption('Открыть Steam', function()
             gui.OpenURL('https://steamcommunity.com/profiles/' .. target:SteamID64())
         end, 'icon16/layout_content.png')
-        // Работает в том случаи, если установлена система профиля моя
-        // https://github.com/darkfated/mooncontextmenu
-        DM:AddOption('Игровой профиль', function()
-            RunConsoleCommand('gameprofile_get_player', target:SteamID())
-            
-            timer.Simple(0.2, function()
-                Close()
+
+        if GameProfile then
+            DM:AddOption('Игровой профиль', function()
+                RunConsoleCommand('gameprofile_get_player', target:SteamID())
                 
-                GameProfile.open_profile(true)
-            end)
-        end, 'icon16/contrast.png')
+                timer.Simple(0.2, function()
+                    Close()
+                    
+                    GameProfile.open_profile(true)
+                end)
+            end, 'icon16/contrast.png')
+        end
+
+        if DarkFated then
+            if table.HasValue(DarkFated.admins, LocalPlayer():GetUserGroup()) then
+                DM:AddSpacer()
+                DM:AddOption('ТП к себе', function()
+                    RunConsoleCommand('sam', 'bring', target:SteamID())
+                end, 'icon16/arrow_left.png')
+                DM:AddOption('ТП к нему', function()
+                    RunConsoleCommand('sam', 'goto', target:SteamID())
+                end, 'icon16/arrow_right.png')
+                DM:AddOption('Вернуть', function()
+                    RunConsoleCommand('sam', 'return', target:SteamID())
+                end, 'icon16/arrow_rotate_clockwise.png')
+
+                if target:getDarkRPVar('job') != 'Забанен' then
+                    DM:AddOption('Игровой бан', function()
+                        Mantle.ui.text_box('Игровой бан', 'Какова будет причина?', function(reason)
+                            timer.Simple(0.1, function()
+                                Mantle.ui.text_box('Игровой бан', 'Длительность? (в минутах)', function(time)
+                                    RunConsoleCommand('sam', 'ban', target:SteamID(), tonumber(time), reason)
+                                end)
+                            end)
+                        end)
+                    end, 'icon16/key_delete.png')
+                else
+                    DM:AddOption('Снять игровой бан', function()
+                        RunConsoleCommand('sam', 'unban', target:SteamID())
+                    end, 'icon16/key_add.png')
+                end
+
+                DM:AddOption('Заспавнить', function()
+                    RunConsoleCommand('sam', 'spawn', target:SteamID())
+                end, 'icon16/world.png')
+            end
+        end
     end
     
     local function CreateGridStyle()
@@ -218,7 +258,7 @@ local function Create()
                         draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.15', w * 0.05 + 16, h * 0.9 + 2, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                     end
                     ply_btn.DoClick = function()
-                        PlayerClick(pl)
+                        PlayerLeftClick(pl)
                     end
 
                     local ply_time_icon = Material(ply_time_data[2])
@@ -242,16 +282,13 @@ local function Create()
                     ply_btn.avatar.btn = vgui.Create('DButton', ply_btn.avatar)
                     ply_btn.avatar.btn:Dock(FILL)
                     ply_btn.avatar.btn:SetText('')
-
-                    local color_shadow = Color(0, 0, 0, 100)
-
                     ply_btn.avatar.btn.Paint = function(self, w, h)
                         if self:IsHovered() or ply_btn:IsHovered() or ply_btn.rank:IsHovered() or ply_btn.icon_time:IsHovered() then
                             draw.RoundedBox(4, 0, 0, w, h, color_shadow)
                         end
                     end
                     ply_btn.avatar.btn.DoClick = function()
-                        PlayerClick(pl)
+                        PlayerLeftClick(pl)
                     end
 
                     ply_btn.rank = vgui.Create('DButton', ply_btn)
@@ -274,6 +311,8 @@ local function Create()
             end
         end
     end
+
+    local color_likes = Color(230, 65, 65)
 
     local function CreateListStyle()
         MoonTab.sp:Clear()
@@ -319,13 +358,14 @@ local function Create()
                     local ply_btn = vgui.Create('DButton', MoonTab.sp)
                     ply_btn:Dock(TOP)
                     ply_btn:DockMargin(0, 0, 0, 4)
-                    ply_btn:SetTall(50)
+                    ply_btn:SetTall(64)
                     ply_btn:SetText('')
 
                     local ply_time_data = get_time_table(pl)
                     local ply_time_icon = Material(ply_time_data[2])
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
+                    local color_rank = Color(220, 220, 220)
 
                     if FatedGang then
                         local gang_id = pl:GangId()
@@ -339,12 +379,32 @@ local function Create()
 
                             http.DownloadMaterial('https://i.imgur.com/' .. info_table.img, info_table.img, function(icon)
                                 if IsValid(ply_btn) then
-                                    ply_btn.mat = icon
+                                    ply_btn.gang_mat = icon
                                     ply_btn.gang_name = info_table.name
                                     ply_btn.gang_rank = rank_table.name
                                     ply_btn.gang_rank_col = rank_table.col
                                 end
                             end)
+                        end
+                    end
+
+                    local pl_gf_data = GameProfile.profiles[pl:SteamID()]
+
+                    if pl_gf_data then
+                        local pl_gf_likes_table = util.JSONToTable(pl_gf_data.likes)
+                        ply_btn.likes = table.Count(pl_gf_likes_table)
+
+                        local pl_gf_data_visual = util.JSONToTable(pl_gf_data.visual)
+                        ply_btn.medals = util.JSONToTable(pl_gf_data.medals)
+
+                        http.DownloadMaterial('https://i.imgur.com/' .. pl_gf_data.avatar .. '.png', pl_gf_data.avatar .. '.png', function(icon)
+                            if IsValid(ply_btn) then
+                                ply_btn.mat_avatar = icon
+                            end
+                        end)
+
+                        if pl_gf_data_visual.banner then
+                            ply_btn.mat_banner = Material('gameprofile/banners/' .. pl_gf_data_visual.banner .. '.png', 'smooth')
                         end
                     end
 
@@ -355,43 +415,110 @@ local function Create()
                             return
                         end
 
-                        local job_color = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
+                        draw.RoundedBox(8, 0, 0, w, h, Mantle.color.panel_alpha[2])
 
-                        draw.RoundedBox(4, 0, 0, w, h, Mantle.color.panel_alpha[2])
-                        draw.RoundedBoxEx(32, 0, 0, 200, 32, job_color, false, false, false, true)
+                        if !pl_gf_data then
+                            draw.SimpleText('В процессе создания профиля', 'Fated.16', w * 0.5, h * 0.5 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                        end
+                        
+                        draw.SimpleText(pl:Ping(), 'Fated.20', w - 14, 14, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
 
-                        draw.SimpleText(pl:Name(), 'Fated.20', 40, 16, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-                        draw.SimpleText(job_table.name, 'Fated.14', 8, h - 3, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-                        draw.SimpleText(pl:Ping(), 'Fated.20', w - 16, h * 0.5, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-
-                        surface.SetDrawColor(Mantle.color.gray)
-                        surface.SetMaterial(ply_time_icon)
-                        surface.DrawTexturedRect(w * 0.7, 8, 16, 16)
-                        draw.SimpleText(ply_time_data[3], 'Fated.14', w * 0.7, h - 6, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
-                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.14', w * 0.7 + 24, 16, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-
-                        surface.SetDrawColor(Mantle.color.gray)
-                        surface.SetMaterial(rank_icon)
-                        surface.DrawTexturedRect(w * 0.25, h * 0.5 - 8, 16, 16)
-                        draw.SimpleText(rank_table[1], 'Fated.14', w * 0.25 + 24, h * 0.5, Mantle.color.gray, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-
-                        if self.mat then
-                            draw.SimpleText(self.gang_name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 10, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
-                            draw.SimpleText(self.gang_rank, 'Fated.16', w * 0.5 - 32, h * 0.5 + 6, self.gang_rank_col, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                        if self.gang_mat then
+                            draw.SimpleText(self.gang_name, 'Fated.20', w * 0.5 - 32, h * 0.5 - 8, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                            draw.SimpleText(self.gang_rank, 'Fated.16', w * 0.5 - 32, h * 0.5 + 8, self.gang_rank_col, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
                             surface.SetDrawColor(color_white)
-                            surface.SetMaterial(self.mat)
-                            surface.DrawTexturedRect(w * 0.5 - 64, h * 0.5 - 15, 28, 28)
+                            surface.SetMaterial(self.gang_mat)
+                            surface.DrawTexturedRect(w * 0.5 - 73, h * 0.5 - 18, 36, 36)
                         end
+
+                        if self.mat_banner then
+                            surface.SetDrawColor(color_white)
+                            surface.SetMaterial(self.mat_banner)
+                            surface.DrawTexturedRect(0, 0, 400, h)
+
+                            draw.RoundedBox(4, 0, 0, 400, h, color_banner_shadow)
+                        end
+
+                        -- if self.mat_avatar then
+                        --     surface.SetDrawColor(color_white)
+                        --     surface.SetMaterial(self.mat_avatar)
+                        --     surface.DrawTexturedRect(8, 8, 48, 48)
+                        -- end
+
+                        draw.SimpleText(pl:Name(), 'Fated.20', 64, h * 0.5 - 9, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(job_table.name, 'Fated.14', 64, h * 0.5 + 9, job_table.color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
+
+                        if !pl_gf_data then
+                            return
+                        end
+
+                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 2, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 1, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5 + 1, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+
+                        surface.SetDrawColor(color_rank)
+                        surface.SetMaterial(ply_time_icon)
+                        surface.DrawTexturedRect(376, 8, 16, 16)
+                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.16', 372, 9, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+                        draw.SimpleText(ply_time_data[4] .. ' ч.', 'Fated.16', 372, 8, color_white, TEXT_ALIGN_RIGHT, TEXT_ALIGN_TOP)
+
+                        surface.SetDrawColor(color_rank)
+                        surface.SetMaterial(rank_icon)
+                        surface.DrawTexturedRect(378, h - 22, 12, 12)
+                        draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 8, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+                        draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 9, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+
+                        for k, medal in pairs(self.medals) do
+                            local medal_table = GameProfile.medals[medal]
+
+                            if !medal_table then
+                                continue
+                            end
+
+                            local mat_medal = Material('gameprofile/medals/' .. medal_table.icon .. '.png', 'smooth')
+
+                            surface.SetDrawColor(color_white)
+                            surface.SetMaterial(mat_medal)
+                            surface.DrawTexturedRect(w * 0.65 + (k - 1) * 38, 16, 32, 32)
+                        end
+
+                        draw.SimpleText('ПКМ - Профиль', 'Fated.12', w - 14, h - 14, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+                    end
+                    ply_btn.DoRightClick = function()
+                        Mantle.func.sound()
+
+                        RunConsoleCommand('gameprofile_get_player', pl:SteamID())
+                
+                        timer.Simple(0.2, function()
+                            Close()
+                            
+                            GameProfile.open_profile(true)
+                        end)
                     end
                     ply_btn.DoClick = function()
-                        PlayerClick(pl)
+                        PlayerLeftClick(pl)
                     end
 
                     ply_btn.avatar = vgui.Create('AvatarImage', ply_btn)
-                    ply_btn.avatar:SetSize(24, 24)
-                    ply_btn.avatar:SetPos(8, 4)
-                    ply_btn.avatar:SetSteamID(pl:SteamID64(), 24)
+                    ply_btn.avatar:SetSize(48, 48)
+                    ply_btn.avatar:SetPos(8, 8)
+                    ply_btn.avatar:SetSteamID(pl:SteamID64(), 128)
+
+                    ply_btn.avatar.btn = vgui.Create('DButton', ply_btn.avatar)
+                    ply_btn.avatar.btn:Dock(FILL)
+                    ply_btn.avatar.btn:SetText('')
+                    ply_btn.avatar.btn.Paint = function(self, w, h)
+                        if self:IsHovered() then
+                            draw.RoundedBox(0, 0, 0, w, h, color_shadow)
+                        end
+                    end
+                    ply_btn.avatar.btn.DoClick = function()
+                        Mantle.func.sound()
+                        
+                        gui.OpenURL('https://steamcommunity.com/profiles/' .. pl:SteamID64())
+                    end
                 end
             end
         end
