@@ -1,16 +1,18 @@
 # MoonTab
 TAB menu made for DarkRP on Mantle library. The menu has many functions and a choice of player display style
 
-🔧 [Mantle](https://github.com/darkfated/mantle): in order for the system to work, you need to use this Gmod library
+⚠️ [MoonTab](https://github.com/darkfated/moontab): the player profile system must also be used for the menu
+
+🔧 [Mantle](https://github.com/darkfated/mantle): the tab is written in this library, it will not work without it
 
 ## Screenshots ⛅
 
 ### The "grid" style
-<img src="https://github.com/darkfated/moontab/assets/49955245/2cde8ca6-a9c9-439a-aa15-c008ac5471bf" width="650" alt="List style">
-<img src="https://github.com/darkfated/moontab/assets/49955245/45fb7420-d16c-4e78-bf52-d8d1085118c6" width="650" alt="List style 2">
+<img src="https://github.com/darkfated/moontab/assets/49955245/45fb7420-d16c-4e78-bf52-d8d1085118c6" width="650" alt="Grid style">
 
 ### The "list" style
-<img src="https://github.com/darkfated/moontab/assets/49955245/5399966a-95ae-4712-b4e6-28582c91b64c" width="650" alt="List style">
+<img src="https://github.com/darkfated/moontab/assets/49955245/f61d0b0a-dcd5-40be-87a9-393df3247e24" width="650" alt="List style">
+<img src="https://github.com/darkfated/moontab/assets/49955245/825a8d83-060e-4242-af3c-82c92fdc2efc" width="650" alt="List style 2">
 
 *An example of a screenshot from a server that already has this tab*
 
