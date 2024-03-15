@@ -5,6 +5,7 @@
 ]]
 
 local convar_mantle_moontab_style_list = CreateClientConVar('mantle_moontab_style_list', 1, true, false)
+local convar_mantle_moontab_superfluous = CreateClientConVar('mantle_moontab_superfluous', 1, true, false)
 
 local table_ranks = {
     ['superadmin'] = {'Создатель', 'icon16/tux.png'},
@@ -133,7 +134,8 @@ local function Create()
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
     local function get_time_table(pl)
-        local time = time_to_hours(pl:sam_get_play_time()) -- Здесь написать meta-функцию измерения часов у игрока. Пример: time_to_hours(pl:GetUTime())
+        local sam_time = pl:sam_get_play_time() -- Здесь написать meta-функцию измерения часов у игрока. Пример: pl:GetUTime()
+        local time = time_to_hours(sam_time < 3600 and 0 or sam_time)
         local time_data = {}
 
         for _, data_hour in ipairs(table_hours) do
@@ -366,7 +368,7 @@ local function Create()
                     local rank_icon = Material(rank_table[2])
                     local color_rank = Color(220, 220, 220)
 
-                    if FatedGang then
+                    if FatedGang and convar_mantle_moontab_superfluous:GetBool() then
                         local gang_id = pl:GangId()
 
                         if gang_id then
@@ -396,14 +398,16 @@ local function Create()
                         local pl_gf_data_visual = util.JSONToTable(pl_gf_data.visual)
                         ply_btn.medals = util.JSONToTable(pl_gf_data.medals)
 
-                        http.DownloadMaterial('https://i.imgur.com/' .. pl_gf_data.avatar .. '.png', pl_gf_data.avatar .. '.png', function(icon)
-                            if IsValid(ply_btn) then
-                                ply_btn.mat_avatar = icon
-                            end
-                        end)
+                        if convar_mantle_moontab_superfluous:GetBool() then
+                            http.DownloadMaterial('https://i.imgur.com/' .. pl_gf_data.avatar .. '.png', pl_gf_data.avatar .. '.png', function(icon)
+                                if IsValid(ply_btn) then
+                                    ply_btn.mat_avatar = icon
+                                end
+                            end)
 
-                        if pl_gf_data_visual.banner then
-                            ply_btn.mat_banner = Material('gameprofile/banners/' .. pl_gf_data_visual.banner .. '.png', 'smooth')
+                            if pl_gf_data_visual.banner then
+                                ply_btn.mat_banner = Material('gameprofile/banners/' .. pl_gf_data_visual.banner .. '.png', 'smooth')
+                            end
                         end
                     end
 
@@ -445,6 +449,7 @@ local function Create()
                         --     surface.DrawTexturedRect(8, 8, 48, 48)
                         -- end
 
+                        draw.SimpleText(pl:Name(), 'Fated.20', 63, h * 0.5 - 8, color_black, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                         draw.SimpleText(pl:Name(), 'Fated.20', 64, h * 0.5 - 9, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                         draw.SimpleText(job_table.name, 'Fated.14', 64, h * 0.5 + 9, job_table.color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
@@ -469,7 +474,7 @@ local function Create()
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 8, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 9, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
 
-                        if self.medals then
+                        if self.medals and convar_mantle_moontab_superfluous:GetBool() then
                             for k, medal in pairs(self.medals) do
                                 local medal_table = GameProfile.medals[medal]
 
