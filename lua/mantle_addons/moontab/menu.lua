@@ -140,7 +140,7 @@ local function Create()
 
         for _, data_hour in ipairs(table_hours) do
             if time >= data_hour[1] then
-                time_data = {data_hour[1], data_hour[2], data_hour[3]}
+                time_data = data_hour
             else
                 break
             end
