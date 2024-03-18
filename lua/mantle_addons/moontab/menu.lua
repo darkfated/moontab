@@ -411,6 +411,8 @@ local function Create()
                         end
                     end
 
+                    local color_job_back = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
+
                     ply_btn.Paint = function(self, w, h)
                         if !IsValid(pl) then
                             self:Remove()
@@ -419,6 +421,7 @@ local function Create()
                         end
 
                         draw.RoundedBox(8, 0, 0, w, h, Mantle.color.panel_alpha[2])
+                        Mantle.func.gradient(0, 0, w, h * 4, 1, color_job_back)
 
                         if !pl_gf_data then
                             draw.SimpleText('В процессе создания профиля', 'Fated.16', w * 0.5, h * 0.5 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
