@@ -1,14 +1,14 @@
 # MoonTab
 TAB menu made for DarkRP on Mantle library. The menu has many functions and a choice of player display style
 
-⚠️ [MoonTab](https://github.com/darkfated/moontab): the player profile system must also be used for the menu
+⚠️ The modern version of the repository also requires downloading [GameProfile](https://github.com/darkfated/gameprofile). If you only want to use tab, [download the older version](https://github.com/darkfated/moontab/releases/tag/old-no-gameprofile)
 
 🔧 [Mantle](https://github.com/darkfated/mantle): the tab is written in this library, it will not work without it
 
 ## Screenshots ⛅
 
 ### The "grid" style
-<img src="https://github.com/darkfated/moontab/assets/49955245/45fb7420-d16c-4e78-bf52-d8d1085118c6" width="650" alt="Grid style">
+<img src="https://github.com/darkfated/moontab/assets/49955245/c547580b-ee81-4794-b9e1-e6e6015ad508" width="650" alt="Grid style">
 
 ### The "list" style
 <img src="https://github.com/darkfated/moontab/assets/49955245/f61d0b0a-dcd5-40be-87a9-393df3247e24" width="650" alt="List style">
