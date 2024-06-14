@@ -65,7 +65,7 @@ local function Create()
     local _, server_players_table = player.Iterator()
 
     MoonTab = vgui.Create('DFrame')
-    Mantle.ui.frame(MoonTab, 'Количество игроков: ' .. #server_players_table .. ' из ' .. game.MaxPlayers(), math.Clamp(menu_width, 0, scrw), math.Clamp(menu_tall, 0, scrh), false)
+    Mantle.ui.frame(MoonTab, 'Количество игроков: ' .. #server_players_table .. ' из ' .. game.MaxPlayers(), math.Clamp(menu_width, 0, scrw), math.Clamp(menu_tall, 0, scrh), false, true)
     MoonTab:Center()
     MoonTab:MakePopup()
     MoonTab:SetKeyBoardInputEnabled(false)
