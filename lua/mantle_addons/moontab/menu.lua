@@ -272,7 +272,7 @@ local function Create()
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
                     local name = pl:Name()
-                    local color_job_back = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
+                    local color_job_back = Color(job_table.color.r, job_table.color.g, job_table.color.b, 190)
                     local pl_gf_data = GameProfile and GameProfile.profiles[pl:SteamID()] or nil
 
                     if pl_gf_data then
@@ -415,7 +415,7 @@ local function Create()
                     local rank_table = table_ranks[pl:GetUserGroup()] and table_ranks[pl:GetUserGroup()] or table_ranks['user']
                     local rank_icon = Material(rank_table[2])
                     local name = pl:Name()
-                    local color_job_back = Color(job_table.color.r, job_table.color.g, job_table.color.b, 50)
+                    local color_job_back = Color(job_table.color.r, job_table.color.g, job_table.color.b, 190)
                     local pl_gf_data = GameProfile and GameProfile.profiles[pl:SteamID()] or nil
 
                     if FatedGang and convar_mantle_moontab_superfluous:GetBool() then
