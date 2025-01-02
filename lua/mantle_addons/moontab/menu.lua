@@ -8,7 +8,7 @@ local convar_mantle_moontab_style_list = CreateClientConVar('mantle_moontab_styl
 local convar_mantle_moontab_superfluous = CreateClientConVar('mantle_moontab_superfluous', 1, true, false)
 
 local table_ranks = {
-    ['superadmin'] = {'Создатель', 'icon16/tux.png', true}, -- третим аргументом разрешение на показ админ команд над игроком
+    ['superadmin'] = {'Создатель', 'icon16/tux.png', true}, -- третьим аргументом разрешение на показ админ команд над игроком
     ['curator'] = {'Куратор', 'icon16/heart.png', true},
     ['main-admin'] = {'Гл.Администратор', 'icon16/rosette.png', true},
     ['sponsor'] = {'Спонсор', 'icon16/eye.png', true},
@@ -153,7 +153,8 @@ local function Create()
     MoonTab.sp:DockMargin(4, 4, 4, 4)
 
     local function get_time_table(pl)
-        local sam_time = pl:sam_get_play_time() -- Здесь написать meta-функцию измерения часов у игрока. Пример: pl:GetUTime()
+        -- local sam_time = pl:sam_get_play_time() -- Здесь написать meta-функцию измерения часов у игрока. Пример: pl:GetUTime()
+        local sam_time = 0 -- Здесь написать meta-функцию измерения часов у игрока. Пример: pl:GetUTime()
         local time = time_to_hours(sam_time < 3600 and 0 or sam_time)
         local time_data = {}
 
@@ -314,7 +315,7 @@ local function Create()
                         draw.SimpleText(name, 'Fated.20', w * 0.5 + 1, h * 0.1 + 3, color_black, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                         draw.SimpleText(name, 'Fated.20', w * 0.5, h * 0.1 + 2, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
-                        draw.SimpleText(job_table.name, 'Fated.15', 10, h - 8, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
+                        draw.SimpleText(job_table.name, 'Fated.16', 10, h - 8, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_BOTTOM)
 
                         surface.SetDrawColor(color_rank)
                         surface.SetMaterial(rank_icon)
@@ -476,7 +477,7 @@ local function Create()
                             surface.SetDrawColor(color_white)
                             surface.SetMaterial(self.gang_mat)
                             surface.DrawTexturedRect(w * 0.5 - 73, 14, 36, 36)
-                        elseif !pl_gf_data then
+                        elseif !pl_gf_data and GameProfile then
                             draw.SimpleText('В процессе создания профиля', 'Fated.16', w * 0.5, h * 0.5 - 1, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
                         end
             
@@ -494,15 +495,6 @@ local function Create()
                         draw.SimpleText(name, 'Fated.20', 64, h * 0.5 - 9, color_white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
                         draw.SimpleText(job_table.name, 'Fated.14', 64, h * 0.5 + 9, job_table.color, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-                        if !pl_gf_data then
-                            return
-                        end
-
-                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 3, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 2, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5 + 1, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-
                         surface.SetDrawColor(color_rank)
                         surface.SetMaterial(ply_time_icon)
                         surface.DrawTexturedRect(376, 8, 16, 16)
@@ -514,6 +506,15 @@ local function Create()
                         surface.DrawTexturedRect(378, h - 22, 12, 12)
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 8, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
                         draw.SimpleText(rank_table[1], 'Fated.16', 372, h - 9, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_BOTTOM)
+                        
+                        if !pl_gf_data then
+                            return
+                        end
+
+                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 3, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText('❤', 'Fated.16', 391, h * 0.5 + 2, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5 + 1, color_black, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+                        draw.SimpleText(self.likes, 'Fated.16', 371, h * 0.5, color_likes, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
                         if self.medals and convar_mantle_moontab_superfluous:GetBool() then
                             for k, medal in pairs(self.medals) do
