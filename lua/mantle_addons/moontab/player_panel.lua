@@ -43,7 +43,7 @@ function PANEL:Init()
 
         draw.SimpleText(self.ply:Name(), 'Fated.18', 58, h * 0.5, Mantle.color.white, TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER)
 
-        local plySec = math.floor(self.ply:GetUTimeTotalTime() * 800)
+        local plySec = math.floor(self.ply.GetUTimeTotalTime and self.ply:GetUTimeTotalTime() or 0)
         draw.SimpleText(formatTime(plySec), 'Fated.18', w - 34, h * 0.5, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
         RNDX().Rect(w - 26, h * 0.5 - 8, 16, 16)
             :Material(getTimeIcon(plySec))
