@@ -4,17 +4,10 @@
     Author's discord: darkfated
 ]]--
 
-local function run_scripts()
-	Mantle.run_cl('menu.lua')
-end
+MoonTab = {
+	cfg = {}
+}
 
-local function init()
-	if SERVER then
-		resource.AddFile('materials/moontab/style_list.png')
-		resource.AddFile('materials/moontab/style_grid.png')
-	end
-
-	run_scripts()
-end
-
-init()
+Mantle.run_cl('config.lua')
+Mantle.run_cl('player_panel.lua')
+Mantle.run_cl('menu.lua')
