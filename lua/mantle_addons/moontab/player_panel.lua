@@ -35,9 +35,16 @@ function PANEL:Init()
     self.mainPanel:SetWide(250)
     self.mainPanel:SetMouseInputEnabled(false)
     self.mainPanel.Paint = function(_, w, h)
+        if !IsValid(self.ply) then
+            return
+        end
+
+        local teamColor = team.GetColor(self.ply:Team())
+        local backgroundTeamColor = Color(teamColor.r, teamColor.g, teamColor.b, 80)
+
         RNDX().Rect(0, 0, w, h)
             :Radii(16, 12, 16, 12)
-            :Color(Mantle.color.panel[1])
+            :Color(backgroundTeamColor)
             :Shape(RNDX.SHAPE_IOS)
         :Draw()
 
@@ -100,7 +107,18 @@ function PANEL:DoRightClick()
 end
 
 function PANEL:Paint(w, h)
-    RNDX().Rect(0, 2, w, h - 4)
+    if !IsValid(self.ply) then
+        self:Remove()
+        return
+    end
+
+    RNDX().Rect(1, 2, w - 1, h - 4)
+        :Rad(16)
+        :Blur(4)
+        :Shape(RNDX.SHAPE_IOS)
+    :Draw()
+
+    RNDX().Rect(1, 2, w - 1, h - 4)
         :Rad(16)
         :Color(Mantle.color.panel_alpha[2])
         :Shape(RNDX.SHAPE_IOS)
@@ -108,7 +126,7 @@ function PANEL:Paint(w, h)
 
     local teamColor = team.GetColor(self.ply:Team())
     local backgroundTeamColor = Color(teamColor.r, teamColor.g, teamColor.b, 10)
-    Mantle.func.gradient(0, 0, w, h, 1, backgroundTeamColor, 10)
+    Mantle.func.gradient(1, 0, w - 1, h, 1, backgroundTeamColor, 10)
 
     draw.SimpleText(self.ply:Ping(), 'Fated.16', w - 16, h * 0.5, Mantle.color.gray, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
