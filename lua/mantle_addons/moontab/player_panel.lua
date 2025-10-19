@@ -114,7 +114,7 @@ function PANEL:Paint(w, h)
 
     RNDX().Rect(1, 2, w - 1, h - 4)
         :Rad(16)
-        :Blur(4)
+        :Blur(2)
         :Shape(RNDX.SHAPE_IOS)
     :Draw()
 

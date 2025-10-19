@@ -81,6 +81,9 @@ local function CreateMenu()
 end
 
 hook.Add('ScoreboardShow', 'MoonTab', function()
+        if IsValid(MoonTab.menu) then
+        MoonTab.menu:Remove()
+    end
     if IsValid(MoonTab.menu) then
         MoonTab.menu:SetVisible(true)
         local m = MoonTab.menu
